@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set in environment' });
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set' });
   }
 
   try {
@@ -21,9 +21,14 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify(req.body),
     });
-    const data = await response.json();
-    res.status(response.status).json(data);
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      res.status(response.status).json(data);
+    } catch(e) {
+      res.status(response.status).json({ error: text });
+    }
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: String(err.message) });
   }
 }
