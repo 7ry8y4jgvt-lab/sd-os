@@ -21,7 +21,7 @@ async function callAI(prompt, useSearch = false) {
     messages: [{ role: 'user', content: prompt }],
   };
   if (useSearch) body.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
-  const res = await fetch('/api/ai', {
+  const res = await fetch('/api/claude', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
@@ -179,7 +179,7 @@ function Dashboard() {
       if (json.errors) throw new Error(json.errors[0].message);
       setData(json.data);
       setSynced(new Date());
-    } catch (e) { setError(e.message); }
+    } catch (e) { setError(e.message || JSON.stringify(e)); }
     finally { setLoading(false); }
   }, []);
 
@@ -642,7 +642,7 @@ function Board() {
       await sleep(800);
       setVerdict(parsed.verdict || '');
     } catch (e) {
-      setError(e.message);
+      setError(e.message || JSON.stringify(e));
     } finally {
       setRunning(false);
     }
