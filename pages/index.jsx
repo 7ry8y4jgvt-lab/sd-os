@@ -197,7 +197,7 @@ function Dashboard() {
 const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 const ci = parseBoard(data?.campaigns, 'color_mm2pf5wp', 'date_mm2kg11k', 'date').filter(i => !i.date || new Date(i.date) >= startOfMonth);
 const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').filter(i => !i.date || new Date(i.date) >= startOfMonth);
-    const wb = parseBoard(data?.websitebuild, 'color_mm3gsn5d', 'date_mm3gzw4j', 'date');
+    const wb = parseBoard(data?.websitebuild, 'color_mm3gsn5d', 'date_mm3gzw4j', 'date').slice(0, 6);
   const getbrief = useCallback(async () => {
     setBriefing(true); setBrief('');
     try {
