@@ -14,10 +14,10 @@ const T = {
 };
 
 // ─── API UTILS ────────────────────────────────────────────────────────────────
-async function callAI(prompt, useSearch = false) {
+async function callAI(prompt, useSearch = false, maxTokens = 2000) {
   const body = {
     model: 'claude-sonnet-4-20250514',
-    max_tokens: 1000,
+    max_tokens: maxTokens,
     messages: [{ role: 'user', content: prompt }],
   };
   if (useSearch) body.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
@@ -136,6 +136,14 @@ const MONDAY_QUERY = `{
       }
     }
   }
+  websitebuild: boards(ids: [5096740248]) {
+    items_page(limit: 50) {
+      items {
+        name
+        column_values(ids: ["color_mm3gsn5d", "date_mm3gzw4j"]) { id text }
+      }
+    }
+  }
 }`;
 
 function parseBoard(board, statusId, secondId, secondKey) {
@@ -164,7 +172,7 @@ function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [brief, setBrief] = useState('');
+  const [clientTab, setClientTab] = useState('all');const [brief, setBrief] = useState('');
   const [briefing, setBriefing] = useState(false);
   const [synced, setSynced] = useState(null);
 
@@ -185,10 +193,11 @@ function Dashboard() {
 
   useEffect(() => { sync(); }, [sync]);
 
-  const di = parseBoard(data?.draughts, 'project_status', 'project_owner', 'owner');
-  const ci = parseBoard(data?.campaigns, 'color_mm2pf5wp', 'date_mm2kg11k', 'date');
-  const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date');
-
+  const di = parseBoard(data?.draughts, 'project_status', 'project_owner', 'owner').filter(i => (i.status || '').toLowerCase().includes('done') === false);
+const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+const ci = parseBoard(data?.campaigns, 'color_mm2pf5wp', 'date_mm2kg11k', 'date').filter(i => !i.date || new Date(i.date) >= startOfMonth);
+const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').filter(i => !i.date || new Date(i.date) >= startOfMonth);
+    const wb = parseBoard(data?.websitebuild, 'color_mm3gsn5d', 'date_mm3gzw4j', 'date');
   const getbrief = useCallback(async () => {
     setBriefing(true); setBrief('');
     try {
@@ -225,23 +234,28 @@ function Dashboard() {
           <StatCard label="Content pieces" value={co.length} sub={`${co.filter(i => i.status?.toLowerCase().includes('done')).length} done`} />
         </div>
       )}
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-        <Card label="Draughts London" accent={T.blue} status={loading ? 'syncing…' : 'live'}>
+      <div style={{ display: 'flex', gap: '0', marginBottom: '10px', borderBottom: `0.5px solid ${T.bd}` }}>
+        {['all', 'draughts', 'allstars'].map(t => (
+          <button key={t} onClick={() => setClientTab(t)} style={{ fontSize: '12px', padding: '5px 14px', fontWeight: clientTab === t ? '500' : '400', borderBottom: clientTab === t ? `2px solid ${T.tx}` : '2px solid transparent', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderRadius: 0, background: 'none', color: clientTab === t ? T.tx : T.txT, cursor: 'pointer' }}>{t === 'all' ? 'All clients' : t === 'draughts' ? 'Draughts' : 'Allstars'}</button>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: clientTab === 'all' ? '1fr 1fr' : '1fr', gap: '10px' }}>
+        {(clientTab === 'all' || clientTab === 'draughts') && <Card label="Draughts London" accent={T.blue} status={loading ? 'syncing…' : 'live'}>
           {loading ? <Skel /> : di.map((item, i) => <IRow key={i} item={item} showOwner last={i === di.length - 1} />)}
-        </Card>
-        <Card label="Allstars Group" accent={T.orange} status={loading ? 'syncing…' : 'live'}>
+        </Card>}
+        {(clientTab === 'all' || clientTab === 'allstars') && <Card label="Allstars Group" accent={T.orange} status={loading ? 'syncing…' : 'live'}>
           {loading ? <Skel /> : (
             <>
               <div style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>May Campaigns</div>
               {ci.map((item, i) => <IRow key={i} item={item} showDate last={i === ci.length - 1} />)}
               <div style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 10px', paddingTop: '16px', borderTop: `0.5px solid ${T.bd}` }}>Content Calendar</div>
               {co.map((item, i) => <IRow key={i} item={item} showDate last={i === co.length - 1} />)}
+              <div style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 10px', paddingTop: '16px', borderTop: `0.5px solid ${T.bd}` }}>Website Build</div>
+              {wb.map((item, i) => <IRow key={i} item={item} showDate last={i === wb.length - 1} />)}
             </>
           )}
-        </Card>
+        </Card>}
       </div>
-
       <div style={{ marginTop: '10px', padding: '12px 14px', background: T.bgS, borderRadius: '6px', fontSize: '12px', color: T.txS }}>
         📧 <strong>Gmail panel</strong> — coming in the next update. Requires OAuth setup. For now, check Gmail directly.
       </div>
@@ -255,15 +269,37 @@ const REGS = ['UK — All regions', 'London', 'South East', 'Midlands', 'North W
 
 function ProspCard({ p, onSelect, selected }) {
   const [exp, setExp] = useState(false);
+  const [email, setEmail] = useState(p.email || '');
+  const [hunting, setHunting] = useState(false);
+
+  const findEmail = async () => {
+    if (!p.url) return;
+    setHunting(true);
+    try {
+      const domain = p.url.replace(/https?:\/\//, '').replace(/\/.*/, '').replace(/^www\./, '');
+      const r = await fetch('/api/hunter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ domain }) });
+      const data = await r.json();
+      const emails = data?.data?.emails || [];
+      const match = emails.find(e => e.first_name && p.contactName && p.contactName.toLowerCase().includes(e.first_name.toLowerCase())) || emails[0];
+      if (match) setEmail(match.value);
+      else setEmail('Not found');
+    } catch(e) { setEmail('Error'); }
+    finally { setHunting(false); }
+  };
+
   return (
     <div style={{ background: selected ? T.bgI : T.bg, border: selected ? `1.5px solid ${T.txI}` : `0.5px solid ${T.bd}`, borderRadius: '8px', padding: '12px 14px', marginBottom: '8px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: '13px', fontWeight: '500', color: T.tx }}>{p.company}</div>
           <div style={{ fontSize: '11px', color: T.txS }}>{p.contactName ? (p.contactName + (p.contactTitle ? ' · ' + p.contactTitle : '')) : 'Contact TBC'}</div>
+          <div style={{ fontSize: '11px', color: T.txI, marginTop: '2px' }}>{email}</div>
           {p.location && <div style={{ fontSize: '11px', color: T.txT }}>{p.location}</div>}
         </div>
         <div style={{ display: 'flex', gap: '5px', flexShrink: 0 }}>
+          <Btn onClick={findEmail} disabled={hunting}>{hunting ? '...' : 'Email'}</Btn>
+          <Btn onClick={() => window.open('https://www.linkedin.com/search/results/people/?keywords=' + encodeURIComponent((p.contactName || '') + ' ' + p.company), '_blank')}>LinkedIn</Btn>
+          <Btn onClick={() => window.open('https://www.google.com/search?q=' + encodeURIComponent('"' + (p.contactName || '') + '" "' + p.company + '" LinkedIn'), '_blank')}>Google</Btn>
           <Btn onClick={() => setExp(e => !e)}>{exp ? 'Less' : 'More'}</Btn>
           <Btn onClick={() => onSelect(p)} style={selected ? { background: T.bgSu, color: T.txSu } : {}}>{selected ? '✓' : 'Use →'}</Btn>
         </div>
@@ -276,12 +312,20 @@ function ProspCard({ p, onSelect, selected }) {
 
 function ECard({ email, index, onDraft, drafting, drafted }) {
   const [cp, setCp] = useState(false);
+  const openGmail = () => {
+    const params = new URLSearchParams();
+    if (email.to) params.set('to', email.to);
+    params.set('su', email.subject);
+    params.set('body', email.body);
+    window.open('https://mail.google.com/mail/?view=cm&' + params.toString(), '_blank');
+  };
   return (
     <div style={{ background: T.bg, border: `0.5px solid ${T.bd}`, borderRadius: '8px', overflow: 'hidden', marginBottom: '10px' }}>
       <div style={{ padding: '10px 16px', borderBottom: `0.5px solid ${T.bd}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: T.bgS }}>
         <span style={{ fontSize: '12px', fontWeight: '500', color: T.tx }}>Email {index + 1}</span>
         <div style={{ display: 'flex', gap: '6px' }}>
           <Btn onClick={() => { navigator.clipboard.writeText(`Subject: ${email.subject}\n\n${email.body}`); setCp(true); setTimeout(() => setCp(false), 2000); }}>{cp ? 'Copied ✓' : 'Copy'}</Btn>
+          <Btn onClick={openGmail}>Gmail ↗</Btn>
         </div>
       </div>
       <div style={{ padding: '14px 16px' }}>
@@ -311,16 +355,16 @@ function Outbound() {
   const find = useCallback(async () => {
     setFinding(true); setFerr(null); setProspects([]);
     try {
-      const t = await callAI(`B2B researcher for Smith & Devil (bespoke mini golf design+build, concept to installation). Find ${cnt} real UK companies: type: ${vtype}, region: ${region}${extra ? ', criteria: ' + extra : ''}. For each: company name, location, contactName, contactTitle (owner/MD/GM), url, a specific recent trigger signal, 1-2 sentence description. Return ONLY JSON: {"prospects":[{"company":"","location":"","contactName":"","contactTitle":"","url":"","signal":"","description":""}]}`, true);
+      const t = await callAI(`B2B researcher for Smith & Devil (bespoke mini golf design+build, concept to installation). Find ${cnt} real UK companies: type: ${vtype}, region: ${region}${extra ? ', criteria: ' + extra : ''}. For each: company name, location, contactName, contactTitle (owner/MD/GM), url, a specific recent trigger signal, 1-2 sentence description. Return ONLY JSON: {"prospects":[{"company":"","location":"","contactName":"","contactTitle":"","url":"","signal":"","description":""}]}`, false, 1500);
       setProspects(xj(t).prospects || []);
-    } catch (e) { setFerr(e.message); }
+    } catch (e) { setFerr(e.message || JSON.stringify(e)); }
     finally { setFinding(false); }
   }, [vtype, region, extra, cnt]);
 
   const generate = useCallback(async (p) => {
     setSel(p); setGen(true); setGerr(null); setEmails([]); setVtab('seq');
     try {
-      const t = await callAI(`Write 4-email cold outbound sequence from Alex at Smith & Devil (London branding agency, bespoke mini golf design+build, concept to installation). Case study: The Park RVA Wonderball — 50,000 sqft multi-activity venue in Richmond Virginia, two 9-hole courses designed and built by S&D, full service from concept to installation.\n\nProspect: ${p.company}, ${p.location}, ${p.contactName || 'decision maker'}${p.contactTitle ? ' (' + p.contactTitle + ')' : ''}, ${p.url || ''}, signal: ${p.signal || 'none'}, ${p.description || ''}.\n\nSearch for ${p.company} for any additional detail that strengthens personalisation.\n\nEmail 1: Case study + low friction CTA. Email 2: Signal-driven, reference their specific trigger. Email 3: Pain point (generic/no attractions). Email 4: 3-line follow-up.\n\nTone: warm, direct, never salesy. Subject lines reference something real. Sign: Alex\\nSmith & Devil\\nhello@smithanddevil.com\n\nReturn ONLY JSON: {"emails":[{"subject":"","body":""}]}`, true);
+      const t = await callAI(`Write 4-email cold outbound sequence from Alex at Smith & Devil (London branding agency, bespoke mini golf design+build, concept to installation). Case study: The Park RVA Wonderball — 50,000 sqft multi-activity venue in Richmond Virginia, two 9-hole courses designed and built by S&D, full service from concept to installation.\n\nProspect: ${p.company}, ${p.location}, ${p.contactName || 'decision maker'}${p.contactTitle ? ' (' + p.contactTitle + ')' : ''}, ${p.url || ''}, signal: ${p.signal || 'none'}, ${p.description || ''}.\n\nSearch for ${p.company} for any additional detail that strengthens personalisation.\n\nEmail 1: Case study + low friction CTA. Email 2: Signal-driven, reference their specific trigger. Email 3: Pain point (generic/no attractions). Email 4: 3-line follow-up.\n\nTone: warm, direct, never salesy. Subject lines reference something real. Sign: Alex\\nSmith & Devil\\nhello@smithanddevil.com\n\nReturn ONLY JSON: {"emails":[{"subject":"","body":""}]}`, true, 2500);
       setEmails(xj(t).emails || []);
     } catch (e) { setGerr(e.message); }
     finally { setGen(false); }
@@ -425,6 +469,25 @@ function Social() {
   const [cur, setCur] = useState(0);
   const [anim, setAnim] = useState(false);
   const [cp, setCp] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const slideRef = useRef(null);
+  const exportSlides = async () => {
+    if (slides.length === 0 || slideRef.current === null) return;
+    setExporting(true);
+    try {
+      const h2c = (await import('html2canvas')).default;
+      for (let i = 0; i < slides.length; i++) {
+        setCur(i);
+        await new Promise(r => setTimeout(r, 400));
+        const canvas = await h2c(slideRef.current, { useCORS: true, scale: 2 });
+        const link = document.createElement('a');
+        link.download = 'slide-' + (i+1) + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        await new Promise(r => setTimeout(r, 300));
+      }
+    } catch(e) { console.error(e); } finally { setExporting(false); }
+  };
 
   const upd = (k, v) => setBr(b => ({ ...b, [k]: v }));
   const go = useCallback((i) => { setAnim(true); setCur(i); setTimeout(() => setAnim(false), 600); }, []);
@@ -501,6 +564,7 @@ function Social() {
         <div style={{ marginTop: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
             <div style={{ fontSize: '11px', color: T.txT, fontFamily: T.mono }}>{slides.length} slides · {d.label}{isAnim ? ' · Auto-playing' : ''}</div>
+            <Btn onClick={exportSlides} disabled={exporting}>{exporting ? 'Exporting...' : 'Export PNGs'}</Btn>
             {slides.length > 1 && !isAnim && (
               <div style={{ display: 'flex', gap: '4px' }}>
                 <Btn onClick={() => go(Math.max(0, cur - 1))} disabled={cur === 0}>←</Btn>
@@ -509,7 +573,7 @@ function Social() {
               </div>
             )}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', background: T.bgS, borderRadius: '8px', padding: '16px', marginBottom: '10px', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', background: T.bgS, borderRadius: '8px', padding: '16px', marginBottom: '10px', overflow: 'hidden' }} ref={slideRef}>
             <SlideView slide={slides[cur] || {}} brand={br} platform={plat} index={cur} total={slides.length} animated={isAnim} animating={anim} />
           </div>
           {slides.length > 1 && !isAnim && (
