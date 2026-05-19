@@ -1,1 +1,9 @@
-{"/_app":"pages/_app.js","/_error":"pages/_error.js","/api/monday":"pages/api/monday.js","/_document":"pages/_document.js","/api/claude":"pages/api/claude.js","/":"pages/index.html","/404":"pages/404.html"}
+{
+  "/_error": "pages/_error.js",
+  "/api/monday": "pages/api/monday.js",
+  "/_app": "pages/_app.js",
+  "/_document": "pages/_document.js",
+  "/api/hunter": "pages/api/hunter.js",
+  "/api/claude": "pages/api/claude.js",
+  "/": "pages/index.js"
+}

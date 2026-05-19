@@ -204,11 +204,11 @@ const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').
   const getbrief = useCallback(async () => {
     setBriefing(true); setBrief('');
     try {
-      const t = await callAI(`S&D ops director. 2-3 sentence briefing, direct, no filler.\nDraughts: ${JSON.stringify(di.slice(0, 5).map(i => ({ n: i.name, s: i.status })))}\nCampaigns: ${JSON.stringify(ci.slice(0, 5).map(i => ({ n: i.name, s: i.status })))}\n2-3 sentences:`);
+      const t = await callAI(`S&D ops director. 2-3 sentence briefing, direct, no filler.\nDraughts: ${JSON.stringify(di.slice(0, 5).map(i => ({ n: i.name, s: i.status })))}\nCampaigns: ${JSON.stringify(_allCi.slice(0, 5).map(i => ({ n: i.name, s: i.status })))}\n2-3 sentences:`);
       setBrief(t.trim());
     } catch (e) { setBrief(e.message); }
     finally { setBriefing(false); }
-  }, [di, ci]);
+  }, [di, _allCi]);
 
   return (
     <div>
@@ -233,7 +233,7 @@ const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').
       {!loading && data && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
           <StatCard label="Draughts projects" value={di.length} sub={`${di.filter(i => i.status?.toLowerCase().includes('done')).length} done`} />
-          <StatCard label="May campaigns" value={ci.length} sub={`${ci.filter(i => i.status?.toLowerCase().includes('ready')).length} ready`} />
+          <StatCard label="May campaigns" value={_allCi.length} sub={`${_allCi.filter(i => i.status?.toLowerCase().includes('ready')).length} ready`} />
           <StatCard label="Content pieces" value={co.length} sub={`${co.filter(i => i.status?.toLowerCase().includes('done')).length} done`} />
         </div>
       )}
