@@ -199,7 +199,11 @@ function Dashboard() {
     const diDone = _diAll.filter(i => (i.status || '').toLowerCase().includes('done'));
 const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const _mnFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const _months = _MOFFSETS.map(m => ({ label: _mnFull[m-1], items: _CB[m] ? parseBoard(data?.[`m${m}`], 'color_mm2pf5wp', 'date_mm2kg11k', 'date') : [] }));
+    const [openEmails, setOpenEmails] = useState(false);
+  const [aEmails, setAEmails] = useState([]);
+  const [emailsLoading, setEmailsLoading] = useState(false);
+  const [emailsFetched, setEmailsFetched] = useState(false);
+  const _months = _MOFFSETS.map(m => ({ label: _mnFull[m-1], items: _CB[m] ? parseBoard(data?.[`m${m}`], 'color_mm2pf5wp', 'date_mm2kg11k', 'date') : [] }));
     const _allCi = _months.flatMap(mm => mm.items);
 const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').filter(i => !i.date || new Date(i.date) >= startOfMonth);
     const wb = parseBoard(data?.websitebuild, 'color_mm3gsn5d', 'date_mm3gzw4j', 'date').slice(0, 6);
@@ -211,6 +215,17 @@ const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').
     } catch (e) { setBrief(e.message); }
     finally { setBriefing(false); }
   }, [di, _allCi]);
+  const fetchEmails = useCallback(async () => {
+    if (emailsFetched) return;
+    setEmailsLoading(true);
+    try {
+      const r = await fetch('/api/allstars-emails');
+      const d = await r.json();
+      setAEmails(d.emails || []);
+      setEmailsFetched(true);
+    } catch (e) { setAEmails([]); }
+    finally { setEmailsLoading(false); }
+  }, [emailsFetched]);
 
   return (
     <div>
@@ -259,6 +274,20 @@ const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').
               </>}
               <div onClick={() => setOpenWebsite(o => !o)} style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 10px', paddingTop: '16px', borderTop: `0.5px solid ${T.bd}`, cursor: 'pointer', userSelect: 'none' }}>{openWebsite ? '▾' : '▸'} Website Build</div>
               {openWebsite && wb.map((item, i) => <IRow key={i} item={item} showDate last={i === wb.length - 1} />)}
+            <div onClick={() => { setOpenEmails(o => !o); if (!openEmails && !emailsFetched) fetchEmails(); }} style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 10px', paddingTop: '16px', borderTop: `0.5px solid ${T.bd}`, cursor: 'pointer', userSelect: 'none' }}>{openEmails ? '▼' : '►'} Emails</div>
+            {openEmails && (emailsLoading
+              ? <div style={{ fontSize: '12px', color: T.txT, padding: '8px 0' }}>Loading…</div>
+              : aEmails.length === 0
+                ? <div style={{ fontSize: '12px', color: T.txT, padding: '8px 0' }}>No Allstars emails found for May / June.</div>
+                : aEmails.map((em, i) => (
+                    <div key={i} style={{ padding: '10px 0', borderBottom: i < aEmails.length - 1 ? `0.5px solid ${T.bd}` : 'none' }}>
+                      <div style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{em.from}</div>
+                      <div style={{ fontSize: '13px', fontWeight: '500', color: T.tx, marginBottom: '3px' }}>{em.subject}</div>
+                      <div style={{ fontSize: '11px', color: T.txT, fontFamily: T.mono, marginBottom: '4px' }}>{new Date(em.date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
+                      <div style={{ fontSize: '12px', color: T.txT, lineHeight: '1.5' }}>{em.snippet}</div>
+                    </div>
+                  ))
+            )}
             </>
           )}
         </Card>}
