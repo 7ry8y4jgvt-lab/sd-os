@@ -170,6 +170,8 @@ function Dashboard() {
   const [error, setError] = useState(null);
   const [clientTab, setClientTab] = useState('all');
   const [openMonths, setOpenMonths] = useState([true, true, true]);
+  const [openDraughtsLive, setOpenDraughtsLive] = useState(true);
+  const [openDraughtsDone, setOpenDraughtsDone] = useState(false);
   const [openContent, setOpenContent] = useState(true);
   const [openWebsite, setOpenWebsite] = useState(true);const [brief, setBrief] = useState('');
   const [briefing, setBriefing] = useState(false);
@@ -192,7 +194,9 @@ function Dashboard() {
 
   useEffect(() => { sync(); }, [sync]);
 
-  const di = parseBoard(data?.draughts, 'project_status', 'project_owner', 'owner').filter(i => (i.status || '').toLowerCase().includes('done') === false);
+    const _diAll = parseBoard(data?.draughts, 'project_status', 'project_owner', 'owner');
+    const di = _diAll.filter(i => (i.status || '').toLowerCase().includes('done') === false);
+    const diDone = _diAll.filter(i => (i.status || '').toLowerCase().includes('done'));
 const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const _mnFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const _months = _MOFFSETS.map(m => ({ label: _mnFull[m-1], items: _CB[m] ? parseBoard(data?.[`m${m}`], 'color_mm2pf5wp', 'date_mm2kg11k', 'date') : [] }));
@@ -242,7 +246,7 @@ const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: clientTab === 'all' ? '1fr 1fr' : '1fr', gap: '10px' }}>
         {(clientTab === 'all' || clientTab === 'draughts') && <Card label="Draughts London" accent={T.blue} status={loading ? 'syncing…' : 'live'}>
-          {loading ? <Skel /> : di.map((item, i) => <IRow key={i} item={item} showOwner last={i === di.length - 1} />)}
+          {loading ? <Skel /> : <><div onClick={() => setOpenDraughtsLive(o => !o)} style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px', cursor: 'pointer', userSelect: 'none' }}>{openDraughtsLive ? '▾' : '▸'} Live ({di.length})</div>{openDraughtsLive && di.map((item, i) => <IRow key={i} item={item} showOwner last={i === di.length - 1} />)}{diDone.length > 0 && <><div onClick={() => setOpenDraughtsDone(o => !o)} style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 10px', paddingTop: '16px', borderTop: `0.5px solid ${T.bd}`, cursor: 'pointer', userSelect: 'none' }}>{openDraughtsDone ? '▾' : '▸'} Done ({diDone.length})</div>{openDraughtsDone && diDone.map((item, i) => <IRow key={i} item={item} showOwner last={i === diDone.length - 1} />)}</></>}
         </Card>}
         {(clientTab === 'all' || clientTab === 'allstars') && <Card label="Allstars Group" accent={T.orange} status={loading ? 'syncing…' : 'live'}>
           {loading ? <Skel /> : (
