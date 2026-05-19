@@ -121,7 +121,7 @@ const MONDAY_QUERY = `{
     }
   }
   campaigns: boards(ids: [5094931964]) {
-    items_page(limit: 20) {
+    items_page(limit: 100) {
       items {
         name
         column_values(ids: ["color_mm2pf5wp", "date_mm2kg11k"]) { id text }
