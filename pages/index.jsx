@@ -111,6 +111,9 @@ function StatCard({ label, value, sub, warn }) {
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
+const _CB = {5:5094931964,6:5094932056,7:5094932075,8:5094932087,9:5094932139,10:5094932144,11:5094932152,12:5094932287};
+const _NOW = new Date();
+const _MOFFSETS = [0,1,2].map(o => { const m = _NOW.getMonth()+1+o; return m>12 ? m-12 : m; });
 const MONDAY_QUERY = `{
   draughts: boards(ids: [5092879734]) {
     items_page(limit: 20) {
@@ -120,14 +123,7 @@ const MONDAY_QUERY = `{
       }
     }
   }
-  campaigns: boards(ids: [5094931964]) {
-    items_page(limit: 100) {
-      items {
-        name
-        column_values(ids: ["color_mm2pf5wp", "date_mm2kg11k"]) { id text }
-      }
-    }
-  }
+  ${_MOFFSETS.map(m => _CB[m] ? `m${m}: boards(ids: [${_CB[m]}]) { items_page(limit: 100) { items { name column_values(ids: ["color_mm2pf5wp", "date_mm2kg11k"]) { id text } } } }` : "").filter(Boolean).join("\n  ")}
   content: boards(ids: [5093423870]) {
     items_page(limit: 20) {
       items {
@@ -198,7 +194,9 @@ function Dashboard() {
 
   const di = parseBoard(data?.draughts, 'project_status', 'project_owner', 'owner').filter(i => (i.status || '').toLowerCase().includes('done') === false);
 const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    const _nd = new Date(); const _mnFull = ['January','February','March','April','May','June','July','August','September','October','November','December']; const _allCi = parseBoard(data?.campaigns, 'color_mm2pf5wp', 'date_mm2kg11k', 'date'); const _months = [0,1,2].map(offset => { const d = new Date(_nd.getFullYear(), _nd.getMonth() + offset, 1); return { label: _mnFull[d.getMonth()], items: _allCi.filter(i => { if (!i.date) return false; const id = new Date(i.date); return id.getFullYear() === d.getFullYear() && id.getMonth() === d.getMonth(); }) }; });
+    const _mnFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const _months = _MOFFSETS.map(m => ({ label: _mnFull[m-1], items: _CB[m] ? parseBoard(data?.[`m${m}`], 'color_mm2pf5wp', 'date_mm2kg11k', 'date') : [] }));
+    const _allCi = _months.flatMap(mm => mm.items);
 const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').filter(i => !i.date || new Date(i.date) >= startOfMonth);
     const wb = parseBoard(data?.websitebuild, 'color_mm3gsn5d', 'date_mm3gzw4j', 'date').slice(0, 6);
   const getbrief = useCallback(async () => {
