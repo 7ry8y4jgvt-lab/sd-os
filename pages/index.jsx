@@ -172,7 +172,10 @@ function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [clientTab, setClientTab] = useState('all');const [brief, setBrief] = useState('');
+  const [clientTab, setClientTab] = useState('all');
+  const [openCampaigns, setOpenCampaigns] = useState(true);
+  const [openContent, setOpenContent] = useState(true);
+  const [openWebsite, setOpenWebsite] = useState(true);const [brief, setBrief] = useState('');
   const [briefing, setBriefing] = useState(false);
   const [synced, setSynced] = useState(null);
 
@@ -195,7 +198,7 @@ function Dashboard() {
 
   const di = parseBoard(data?.draughts, 'project_status', 'project_owner', 'owner').filter(i => (i.status || '').toLowerCase().includes('done') === false);
 const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-const ci = parseBoard(data?.campaigns, 'color_mm2pf5wp', 'date_mm2kg11k', 'date').filter(i => !i.date || new Date(i.date) >= startOfMonth);
+const _nd = new Date(); const _mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; const ciLabel = _mn[_nd.getMonth()] + ' – ' + _mn[(_nd.getMonth()+2)%12]; const ciEnd = new Date(startOfMonth); ciEnd.setMonth(ciEnd.getMonth() + 3); const ci = parseBoard(data?.campaigns, 'color_mm2pf5wp', 'date_mm2kg11k', 'date').filter(i => !i.date || (new Date(i.date) >= startOfMonth && new Date(i.date) < ciEnd));
 const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').filter(i => !i.date || new Date(i.date) >= startOfMonth);
     const wb = parseBoard(data?.websitebuild, 'color_mm3gsn5d', 'date_mm3gzw4j', 'date').slice(0, 6);
   const getbrief = useCallback(async () => {
@@ -246,12 +249,15 @@ const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').
         {(clientTab === 'all' || clientTab === 'allstars') && <Card label="Allstars Group" accent={T.orange} status={loading ? 'syncing…' : 'live'}>
           {loading ? <Skel /> : (
             <>
-              <div style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>May Campaigns</div>
-              {ci.map((item, i) => <IRow key={i} item={item} showDate last={i === ci.length - 1} />)}
-              <div style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 10px', paddingTop: '16px', borderTop: `0.5px solid ${T.bd}` }}>Content Calendar</div>
-              {co.map((item, i) => <IRow key={i} item={item} showDate last={i === co.length - 1} />)}
-              <div style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 10px', paddingTop: '16px', borderTop: `0.5px solid ${T.bd}` }}>Website Build</div>
-              {wb.map((item, i) => <IRow key={i} item={item} showDate last={i === wb.length - 1} />)}
+              {/* Campaigns */}
+              <div onClick={() => setOpenCampaigns(o => !o)} style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px', cursor: 'pointer', userSelect: 'none' }}>{openCampaigns ? '▾' : '▸'} {ciLabel} Campaigns</div>
+              {openCampaigns && ci.map((item, i) => <IRow key={i} item={item} showDate last={i === ci.length - 1} />)}
+              {co.length > 0 && <>
+                <div onClick={() => setOpenContent(o => !o)} style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 10px', paddingTop: '16px', borderTop: `0.5px solid ${T.bd}`, cursor: 'pointer', userSelect: 'none' }}>{openContent ? '▾' : '▸'} Content Calendar</div>
+                {openContent && co.map((item, i) => <IRow key={i} item={item} showDate last={i === co.length - 1} />)}
+              </>}
+              <div onClick={() => setOpenWebsite(o => !o)} style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '16px 0 10px', paddingTop: '16px', borderTop: `0.5px solid ${T.bd}`, cursor: 'pointer', userSelect: 'none' }}>{openWebsite ? '▾' : '▸'} Website Build</div>
+              {openWebsite && wb.map((item, i) => <IRow key={i} item={item} showDate last={i === wb.length - 1} />)}
             </>
           )}
         </Card>}
