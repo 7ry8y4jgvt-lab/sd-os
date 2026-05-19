@@ -234,7 +234,7 @@ const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').
 
       {!loading && data && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
-          <StatCard label="Draughts projects" value={di.length} sub={`${di.filter(i => i.status?.toLowerCase().includes('done')).length} done`} />
+          <StatCard label="Draughts projects" value={_diAll.length} sub={`${diDone.length} done`} />
           <StatCard label="May campaigns" value={_allCi.length} sub={`${_allCi.filter(i => i.status?.toLowerCase().includes('ready')).length} ready`} />
           <StatCard label="Content pieces" value={co.length} sub={`${co.filter(i => i.status?.toLowerCase().includes('done')).length} done`} />
         </div>
