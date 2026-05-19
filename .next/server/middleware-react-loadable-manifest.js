@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST='{"pages/index.jsx -> html2canvas":{"id":1120,"files":["static/chunks/ad7f724d.e6f475bd3df84b7b.js"]}}';

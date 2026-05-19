@@ -1,9 +1,9 @@
 {
-  "/_error": "pages/_error.js",
-  "/api/monday": "pages/api/monday.js",
   "/_app": "pages/_app.js",
-  "/_document": "pages/_document.js",
-  "/api/hunter": "pages/api/hunter.js",
+  "/_error": "pages/_error.js",
+  "/": "pages/index.js",
   "/api/claude": "pages/api/claude.js",
-  "/": "pages/index.js"
+  "/api/monday": "pages/api/monday.js",
+  "/api/hunter": "pages/api/hunter.js",
+  "/_document": "pages/_document.js"
 }
