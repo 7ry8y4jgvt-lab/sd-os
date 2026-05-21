@@ -2120,8 +2120,6 @@ function BrandGuide() {
   );
 }
 
-}
-
 // ─── BRAND GUIDE TAB ───────────────────────────────────────────────────────
 function Brand() {
   return <BrandGuide />;
