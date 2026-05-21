@@ -2,15 +2,21 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 // ─── THEME ────────────────────────────────────────────────────────────────────
 const T = {
-  bg: '#fafaf9', bgS: '#f5f4f1', bgD: '#fef2f2', bgSu: '#f0fdf4',
-  bgW: '#fffbeb', bgI: '#eff6ff',
-  tx: '#1a1a1a', txS: '#6b7280', txT: '#9ca3af',
-  txD: '#dc2626', txSu: '#16a34a', txW: '#b45309', txI: '#2563eb',
-  bd: '#e5e7eb', bdS: '#d1d5db',
-  accent: '#C8392B', blue: '#185FA5', orange: '#D85A30', green: '#188038',
-  mono: "'JetBrains Mono', 'Fira Code', monospace",
-  serif: "'Cormorant Garamond', serif",
-  sans: "'Jost', sans-serif",
+  // S&D brand tokens
+  bg: '#FFFFFF', bgS: '#F7F6F3', bgD: '#FDF1F2', bgSu: '#F0FDF4',
+  bgW: '#FFFBEB', bgI: '#F5F3FF',
+  tx: '#0D0D0B', txS: '#5a5a56', txT: '#9ca3af',
+  txD: '#C41E2D', txSu: '#16a34a', txW: '#b45309', txI: '#5C1A9A',
+  bd: '#E8E6E1', bdS: '#D4D1CB',
+  // Brand palette
+  red: '#C41E2D', midnight: '#0D0D0B', violet: '#5C1A9A',
+  spark: '#C8EC3C', flash: '#F572A8',
+  accent: '#C41E2D', blue: '#5C1A9A', orange: '#F572A8', green: '#16a34a',
+  // Fonts
+  mono: "'Space Mono', monospace",
+  serif: "'Playfair Display', serif",
+  sans: "'Cabinet Grotesk', sans-serif",
+  body: "'DM Sans', sans-serif",
 };
 
 // ─── API UTILS ────────────────────────────────────────────────────────────────
@@ -256,7 +262,7 @@ const co = parseBoard(data?.content, 'color_mm1kb3ww', 'date_mm1k6pbw', 'date').
       )}
       <div style={{ display: 'flex', gap: '0', marginBottom: '10px', borderBottom: `0.5px solid ${T.bd}` }}>
         {['all', 'draughts', 'allstars'].map(t => (
-          <button key={t} onClick={() => setClientTab(t)} style={{ fontSize: '12px', padding: '5px 14px', fontWeight: clientTab === t ? '500' : '400', borderBottom: clientTab === t ? `2px solid ${T.tx}` : '2px solid transparent', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderRadius: 0, background: 'none', color: clientTab === t ? T.tx : T.txT, cursor: 'pointer' }}>{t === 'all' ? 'All clients' : t === 'draughts' ? 'Draughts' : 'Allstars'}</button>
+          <button key={t} onClick={() => setClientTab(t)} style={{ fontSize: '12px', padding: '5px 14px', fontWeight: clientTab === t ? '500' : '400', borderBottom: clientTab === t ? `2px solid ${T.red}` : '2px solid transparent', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderRadius: 0, background: 'none', color: clientTab === t ? T.tx : T.txT, cursor: 'pointer' }}>{t === 'all' ? 'All clients' : t === 'draughts' ? 'Draughts' : 'Allstars'}</button>
         ))}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: clientTab === 'all' ? '1fr 1fr' : '1fr', gap: '10px' }}>
@@ -408,7 +414,7 @@ function Outbound() {
 
   const selStyle = { fontSize: '12px', padding: '7px 9px', border: `0.5px solid ${T.bdS}`, borderRadius: '6px', background: T.bg, color: T.tx, fontFamily: T.sans, width: '100%' };
   const Tb = ({ id, label }) => (
-    <button onClick={() => setVtab(id)} style={{ fontSize: '12px', padding: '5px 14px', fontWeight: vtab === id ? '500' : '400', borderBottom: vtab === id ? `2px solid ${T.tx}` : '2px solid transparent', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderRadius: 0, background: 'none', color: vtab === id ? T.tx : T.txT, cursor: 'pointer' }}>{label}</button>
+    <button onClick={() => setVtab(id)} style={{ fontSize: '12px', padding: '5px 14px', fontWeight: vtab === id ? '500' : '400', borderBottom: vtab === id ? `2px solid ${T.red}` : '2px solid transparent', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderRadius: 0, background: 'none', color: vtab === id ? T.tx : T.txT, cursor: 'pointer' }}>{label}</button>
   );
 
   return (
@@ -816,7 +822,86 @@ const TABS = [
   { id: 'out', label: 'Outbound' },
   { id: 'soc', label: 'Social' },
   { id: 'board', label: 'The Board' },
+  { id: 'brand', label: 'Brand 😈' },
 ];
+
+// ─── BRAND GUIDE TAB ─────────────────────────────────────────────────────────
+function Brand() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ borderBottom: `0.5px solid ${T.bd}`, paddingBottom: '16px' }}>
+        <h2 style={{ fontFamily: T.sans, fontWeight: 200, fontSize: '36px', lineHeight: 1, letterSpacing: '-0.025em', color: T.midnight, marginBottom: '4px' }}>
+          Brand <span style={{ fontFamily: T.serif, fontStyle: 'italic', color: T.red }}>System.</span>
+        </h2>
+        <p style={{ fontFamily: T.body, fontSize: '13px', color: T.txS, marginTop: '6px' }}>
+          The living S&D brand guide — open in full for editing and exporting.
+        </p>
+      </div>
+
+      {/* Quick tokens */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px' }}>
+        {[
+          { name: 'Midnight', hex: '#0D0D0B' },
+          { name: 'Devil Red', hex: '#C41E2D' },
+          { name: 'White', hex: '#FFFFFF' },
+          { name: 'Violet', hex: '#5C1A9A' },
+          { name: 'Spark', hex: '#C8EC3C' },
+          { name: 'Flash', hex: '#F572A8' },
+        ].map(c => (
+          <div key={c.hex} style={{ background: c.hex, borderRadius: '4px', padding: '12px 10px', border: c.hex === '#FFFFFF' ? `0.5px solid ${T.bd}` : 'none' }}>
+            <p style={{ fontFamily: T.mono, fontSize: '8px', color: c.hex === '#0D0D0B' || c.hex === '#5C1A9A' ? 'rgba(255,255,255,.5)' : 'rgba(13,13,11,.45)', letterSpacing: '.06em', marginBottom: '2px' }}>{c.name.toUpperCase()}</p>
+            <p style={{ fontFamily: T.mono, fontSize: '9px', color: c.hex === '#0D0D0B' || c.hex === '#5C1A9A' ? 'rgba(255,255,255,.7)' : 'rgba(13,13,11,.5)' }}>{c.hex}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Type specimen */}
+      <div style={{ background: T.midnight, borderRadius: '6px', padding: '24px 28px' }}>
+        <p style={{ fontFamily: T.sans, fontWeight: 200, fontSize: '32px', lineHeight: 1, letterSpacing: '-0.025em', color: '#FFFFFF', marginBottom: '2px' }}>
+          Playing hard to <span style={{ fontFamily: T.serif, fontStyle: 'italic', color: T.spark }}>work</span> harder.
+        </p>
+        <p style={{ fontFamily: T.mono, fontSize: '9px', color: 'rgba(255,255,255,.3)', marginTop: '12px', letterSpacing: '.08em' }}>CABINET GROTESK 200 + PLAYFAIR DISPLAY ITALIC · THE SWITCH</p>
+      </div>
+
+      {/* Social card previews */}
+      <div>
+        <p style={{ fontFamily: T.mono, fontSize: '9px', color: T.txT, letterSpacing: '.08em', marginBottom: '10px' }}>SOCIAL CARD SAMPLES</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+          {[
+            { bg: T.midnight, fg: '#FFFFFF', acc: T.spark, sans: '3 weeks.', serif: 'Brief to launch.', emoji: '🏹' },
+            { bg: T.red, fg: '#FFFFFF', acc: '#FFFFFF', sans: 'Seriously', serif: 'Playful.', emoji: '😈' },
+            { bg: T.spark, fg: T.midnight, acc: T.violet, sans: 'Zero ad spend.', serif: 'Just good work.', emoji: '🧲' },
+            { bg: T.violet, fg: '#FFFFFF', acc: T.flash, sans: 'Playing hard to', serif: 'work harder.', emoji: '🥊' },
+          ].map((card, i) => (
+            <div key={i} style={{ background: card.bg, aspectRatio: '1', borderRadius: '4px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', border: card.bg === '#FFFFFF' ? `0.5px solid ${T.bd}` : 'none' }}>
+              <p style={{ fontFamily: T.sans, fontWeight: 200, fontSize: '13px', lineHeight: 1.1, letterSpacing: '-0.02em', color: card.fg, marginBottom: '2px' }}>{card.sans}</p>
+              <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: '15px', lineHeight: 1, color: card.acc }}>{card.serif}</p>
+              <span style={{ fontSize: '16px', marginTop: '6px' }}>{card.emoji}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Open full guide */}
+      <a
+        href="https://claude.ai/artifacts"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ display: 'block', background: T.midnight, color: '#FFFFFF', borderRadius: '6px', padding: '16px 20px', textDecoration: 'none', border: 'none' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <p style={{ fontFamily: T.sans, fontWeight: 300, fontSize: '18px', letterSpacing: '-0.015em' }}>
+              Open full brand <span style={{ fontFamily: T.serif, fontStyle: 'italic', color: T.spark }}>system</span> →
+            </p>
+            <p style={{ fontFamily: T.body, fontSize: '12px', color: 'rgba(255,255,255,.4)', marginTop: '4px' }}>9 tabs · editable · persistent · v10.0</p>
+          </div>
+          <span style={{ fontSize: '28px' }}>😈</span>
+        </div>
+      </a>
+    </div>
+  );
+}
 
 export default function App() {
   const [tab, setTab] = useState('dash');
@@ -827,12 +912,12 @@ export default function App() {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 0 16px', borderBottom: `0.5px solid ${T.bd}`, marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-            <div style={{ fontSize: '24px', fontWeight: '600', color: T.tx, fontFamily: T.serif, letterSpacing: '-0.02em' }}>S&D OS</div>
-            <div style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, letterSpacing: '0.12em', textTransform: 'uppercase' }}>Smith & Devil</div>
+            <div style={{ fontSize: '26px', fontWeight: 200, color: T.midnight, fontFamily: T.sans, letterSpacing: '-0.03em' }}>S&D <span style={{ fontFamily: T.serif, fontStyle: 'italic', color: T.red }}>OS</span></div>
+            <div style={{ fontSize: '9px', color: T.txT, fontFamily: T.mono, letterSpacing: '0.12em', textTransform: 'uppercase' }}>Smith & Devil</div>
           </div>
           <div style={{ display: 'flex' }}>
             {TABS.map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)} style={{ fontSize: '13px', padding: '6px 16px', fontWeight: tab === t.id ? '500' : '400', borderBottom: tab === t.id ? `2px solid ${T.tx}` : '2px solid transparent', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderRadius: 0, background: 'none', color: tab === t.id ? T.tx : T.txT, cursor: 'pointer' }}>{t.label}</button>
+              <button key={t.id} onClick={() => setTab(t.id)} style={{ fontSize: '13px', padding: '6px 16px', fontWeight: tab === t.id ? '500' : '400', borderBottom: tab === t.id ? `2px solid ${T.red}` : '2px solid transparent', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderRadius: 0, background: 'none', color: tab === t.id ? T.tx : T.txT, cursor: 'pointer' }}>{t.label}</button>
             ))}
           </div>
         </div>
@@ -843,11 +928,12 @@ export default function App() {
           {tab === 'out' && <Outbound />}
           {tab === 'soc' && <Social />}
           {tab === 'board' && <Board />}
+          {tab === 'brand' && <Brand />}
         </div>
 
         {/* Footer */}
         <div style={{ textAlign: 'center', marginTop: '32px', fontSize: '10px', color: T.txT, fontFamily: T.mono }}>
-          S&D OS · monday.com · Anthropic AI · v1.0
+          S&D OS · monday.com · Anthropic AI · v1.1 😈
         </div>
       </div>
     </div>
