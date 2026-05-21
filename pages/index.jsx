@@ -2,17 +2,14 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 // ─── THEME ────────────────────────────────────────────────────────────────────
 const T = {
-  // S&D brand tokens
   bg: '#FFFFFF', bgS: '#F7F6F3', bgD: '#FDF1F2', bgSu: '#F0FDF4',
   bgW: '#FFFBEB', bgI: '#F5F3FF',
   tx: '#0D0D0B', txS: '#5a5a56', txT: '#9ca3af',
   txD: '#C41E2D', txSu: '#16a34a', txW: '#b45309', txI: '#5C1A9A',
   bd: '#E8E6E1', bdS: '#D4D1CB',
-  // Brand palette
   red: '#C41E2D', midnight: '#0D0D0B', violet: '#5C1A9A',
   spark: '#C8EC3C', flash: '#F572A8',
   accent: '#C41E2D', blue: '#5C1A9A', orange: '#F572A8', green: '#16a34a',
-  // Fonts
   mono: "'Space Mono', monospace",
   serif: "'Playfair Display', serif",
   sans: "'Cabinet Grotesk', sans-serif",
@@ -826,6 +823,7 @@ const TABS = [
 ];
 
 
+
 // 6 genuinely distinct marks. Each has a specific, deliberate character.
 // All use negative offsets to extend 14px above/below and 18px left/right of text.
 // ViewBox 0 0 110 50 — text sits roughly in the centre zone x:18–92, y:14–36.
@@ -1157,7 +1155,6 @@ function BrandGuide() {
 
   // Load saved content on mount
   useState(() => {
-    (async () => {
       try {
         const result = (()=>{try{const v=localStorage.getItem("sd-brand-content");return v?{value:v}:null;}catch(e){return null;}})();
         if (result?.value) {
@@ -1210,7 +1207,7 @@ function BrandGuide() {
 
   const saveContent = useCallback(async (contentToSave) => {
     setSaveStatus("saving");
-    {
+    try {
       await window.storage.set("sd-brand-content", JSON.stringify(contentToSave));
       setSaveStatus("saved");
     } catch (e) {
@@ -2120,7 +2117,7 @@ function BrandGuide() {
   );
 }
 
-// ─── BRAND GUIDE TAB ───────────────────────────────────────────────────────
+
 function Brand() {
   return <BrandGuide />;
 }
@@ -2135,7 +2132,7 @@ export default function App() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 0 16px', borderBottom: `0.5px solid ${T.bd}`, marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
             <div style={{ fontSize: '26px', fontWeight: 200, color: T.midnight, fontFamily: T.sans, letterSpacing: '-0.03em' }}>S&D <span style={{ fontFamily: T.serif, fontStyle: 'italic', color: T.red }}>OS</span></div>
-            <div style={{ fontSize: '9px', color: T.txT, fontFamily: T.mono, letterSpacing: '0.12em', textTransform: 'uppercase' }}>Smith & Devil</div>
+            <div style={{ fontSize: '10px', color: T.txT, fontFamily: T.mono, letterSpacing: '0.12em', textTransform: 'uppercase' }}>Smith & Devil</div>
           </div>
           <div style={{ display: 'flex' }}>
             {TABS.map(t => (
@@ -2160,5 +2157,4 @@ export default function App() {
       </div>
     </div>
   );
-}
 }
